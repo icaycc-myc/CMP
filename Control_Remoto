@@ -1,0 +1,38 @@
+import machine
+import os
+import network
+import espnow
+import time
+
+# ==== CONFIGURAR SPI Y SD ====
+spi = machine.SPI(2, baudrate=1_000_000, polarity=0, phase=0,
+                  sck=machine.Pin(18), mosi=machine.Pin(23), miso=machine.Pin(19))
+cs = machine.Pin(5, machine.Pin.OUT)
+
+# Montar SD
+os.mount(machine.SDCard(slot=2, sck=18, mosi=23, miso=19, cs=5), "/sd")
+
+# Crear y guardar archivo
+archivo = "/sd/datos.txt"
+with open(archivo, "w") as f:
+    f.write("Hola desde la ESP32 emisora\n")
+    f.write("Transferencia por ESP-NOW\n")
+
+# ==== CONFIGURAR ESP-NOW ====
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+
+e = espnow.ESPNow()
+e.active(True)
+
+# Dirección MAC de la ESP32 receptora (cámbiala por la real)
+peer_mac = b'\x24\x6F\x28\xAB\xCD\xEF'
+e.add_peer(peer_mac)
+
+# Leer contenido del archivo y enviarlo
+with open(archivo, "r") as f:
+    contenido = f.read()
+
+print("Enviando archivo...")
+e.send(peer_mac, contenido)
+print("Archivo enviado.")
