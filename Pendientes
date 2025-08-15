@@ -1,0 +1,8 @@
+Lista de pendientes
+- Fabricar el PCB remoto
+- Conseguir el envio de datos de una ESP a otra.
+- Lograr copiar los datos de la sd enterrada con la del control remoto
+- Sincronizar la hora manualmente y usando el DS3231
+- Mostrar en pantalla oled los datos del momento 
+- Diseñar un sistema que comunique al control remoto la batería disponible en el PCB enterrado
+- De ser posible hacer más legibles los datos
