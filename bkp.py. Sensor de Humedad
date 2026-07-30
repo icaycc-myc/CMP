@@ -1,0 +1,42 @@
+from machine import ADC, Pin
+from time import sleep
+import machine
+import os
+sleep(3)
+led = Pin(13, Pin.OUT)
+led.value(1)
+re=machine.reset_cause()
+print(re)
+rtc=machine.RTC()
+if re==5:
+    print("Inicio...")
+    rtc.datetime((2025, 6, 13, 0, 18, 0, 0, 0))
+else:
+    print("Despertó del modo deep sleep")
+fecha_hora = rtc.datetime()
+timestamp = "{:04d}-{:02d}-{:02d},".format(*fecha_hora[:3])
+timestamp += "{:02d}:{:02d}:{:02d}".format(*fecha_hora[4:7])
+sd = machine.SDCard(slot=2, freq=1000000)
+adc1 = ADC(Pin(32))
+adc2= ADC(Pin(12))
+os.mount(sd, '/sd')
+adc1.atten(ADC.ATTN_11DB)
+adc2.atten(ADC.ATTN_11DB)
+
+val1 = adc1.read_u16()
+val2 = adc2.read_u16()
+mV=val1*(2450-150)/2**16
+mV2=val2*(2450-150)/2**16
+V=mV/1000
+V2=mV2/1000
+H=2.589*10**-10*mV**4-5.010*10**-7*mV**3+3.523*10**-4*mV**2-9.135*10**-2*mV+7.457
+H2=mV*(1250-300)/0.69
+H22=2.589*10**-10*mV2**4-5.010*10**-7*mV2**3+3.523*10**-4*mV2**2-9.135*10**-2*mV2+7.457
+r = f"{timestamp},{val1},{V},{H},{H2},{val2},{V2},{H22}\n"
+with open('/sd/registro.txt', 'a') as f:
+    f.write(r)
+    print(r)
+os.umount('/sd')
+print("Entrando en modo deep sleep por 5 minutos...")
+led.value(0)
+machine.deepsleep(300000)
