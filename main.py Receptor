@@ -7,7 +7,7 @@ from machine import Pin, I2C, SDCard
 import sh1106
 
 # --- Configuración del I2C y OLED SH1106 ---
-i2c = I2C(0, scl=Pin(22), sda=Pin(23))
+i2c = I2C(0, scl=Pin(22), sda=Pin(21))
 oled = sh1106.SH1106_I2C(128, 64, i2c)
 
 oled.fill(0)
